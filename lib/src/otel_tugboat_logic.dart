@@ -1,15 +1,16 @@
-// Licensed under the Dartastic Pro Software License Agreement.
+// Licensed under the Apache License, Version 2.0
 // Copyright 2025-2026 Mindful Software LLC d/b/a Dartastic.io, All rights reserved.
 
-import 'package:dartastic_opentelemetry/dartastic_opentelemetry.dart';
+import 'package:dartastic_opentelemetry_api/dartastic_opentelemetry_api.dart';
 
 import 'otel_tugboat_logic_suppression.dart';
 
 const _tracerName = 'dartastic_otel_libs_tugboat_logic';
 
-Tracer _tracer() => OTel.tracerProvider().getTracer(_tracerName);
+APITracer _tracer() => OTelAPI.tracerProvider().getTracer(_tracerName);
 
 class TugboatLogicResult {
+  /// Creates a result.
   const TugboatLogicResult({
     this.organizationId,
     this.projectId,
@@ -67,8 +68,13 @@ class TugboatLogicResult {
   final int? statusCode;
 }
 
+/// What a traced call returned: the value for the caller plus fields
+/// recorded on the span.
 class TugboatLogicCallResult<T> {
+  /// Creates a call result.
   const TugboatLogicCallResult({required this.value, this.result});
+
+  /// The value returned to the caller.
   final T value;
   final TugboatLogicResult? result;
 }
@@ -96,50 +102,50 @@ Future<T> tracedTugboatLogic<T>({
   final span = _tracer().startSpan(
     'tugboat_logic $operation',
     kind: SpanKind.client,
-    attributes: OTel.attributesFromMap(m),
+    attributes: OTelAPI.attributesFromMap(m),
   );
   try {
     final r = await invoke();
     if (r.result != null) {
       final extras = <Attribute<Object>>[];
       if (r.result!.organizationId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'tugboat_logic.organization.id',
           r.result!.organizationId!,
         ));
       }
       if (r.result!.projectId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'tugboat_logic.project.id',
           r.result!.projectId!,
         ));
       }
       if (r.result!.standard != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'tugboat_logic.standard',
           r.result!.standard!,
         ));
       }
       if (r.result!.controlId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'tugboat_logic.control.id',
           r.result!.controlId!,
         ));
       }
       if (r.result!.requirementId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'tugboat_logic.requirement.id',
           r.result!.requirementId!,
         ));
       }
       if (r.result!.evidenceTaskId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'tugboat_logic.evidence_task.id',
           r.result!.evidenceTaskId!,
         ));
       }
       if (r.result!.controlStatus != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'tugboat_logic.control.status',
           r.result!.controlStatus!,
         ));
@@ -151,7 +157,7 @@ Future<T> tracedTugboatLogic<T>({
         }
       }
       if (r.result!.evidenceStatus != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'tugboat_logic.evidence.status',
           r.result!.evidenceStatus!,
         ));
@@ -164,31 +170,31 @@ Future<T> tracedTugboatLogic<T>({
         }
       }
       if (r.result!.ownerEmail != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'tugboat_logic.owner.email',
           r.result!.ownerEmail!,
         ));
       }
       if (r.result!.dueDateSec != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'tugboat_logic.due_date_sec',
           r.result!.dueDateSec!,
         ));
       }
       if (r.result!.attachmentCount != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'tugboat_logic.attachment.count',
           r.result!.attachmentCount!,
         ));
       }
       if (r.result!.collectorSlug != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'tugboat_logic.collector.slug',
           r.result!.collectorSlug!,
         ));
       }
       if (r.result!.statusCode != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'http.response.status_code',
           r.result!.statusCode!,
         ));
@@ -199,13 +205,13 @@ Future<T> tracedTugboatLogic<T>({
           );
         }
       }
-      if (extras.isNotEmpty) span.addAttributes(OTel.attributes(extras));
+      if (extras.isNotEmpty) span.addAttributes(OTelAPI.attributes(extras));
     }
     return r.value;
   } catch (e, st) {
-    span.addAttributes(OTel.attributes([
-      OTel.attributeString(
-        ErrorResource.errorType.key,
+    span.addAttributes(OTelAPI.attributes([
+      OTelAPI.attributeString(
+        ErrorAttributes.errorType.key,
         e.runtimeType.toString(),
       ),
     ]));
